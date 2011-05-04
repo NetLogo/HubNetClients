@@ -1,10 +1,7 @@
-package org.nlogo.hubnet
-
 import java.awt.event.{WindowAdapter, WindowEvent, ActionEvent, ActionListener}
 import javax.swing.{JFrame, JButton, JLabel, JTextField, BoxLayout, JPanel}
-import org.nlogo.hubnet.protocol.TestClient
 
-object StandaloneHubNetClient{
+object BasicHubNetClientWithGUI{
 
   def main(args:Array[String]){ new ConnectionGUI().go() }
 
@@ -14,6 +11,7 @@ object StandaloneHubNetClient{
       override def windowClosing(e: WindowEvent) {ConnectionGUI.this.dispose()}
     })
     def go() { pack(); setVisible(true) }
+
     class ConnectionPanel extends JPanel {
       private val name = new JTextField(20){ setText("robot") }
       private val ip = new JTextField(20){ setText("localhost") }
@@ -27,7 +25,7 @@ object StandaloneHubNetClient{
         addActionListener(new ActionListener() {
           def actionPerformed(actionEvent: ActionEvent) {
             try {
-              new ClientGUI(new TestClient(name.getText, "ANDROID", ip.getText, port.getText.toInt)).run()
+              new ClientGUI(new BasicClient(name.getText, "ANDROID", ip.getText, port.getText.toInt)).run()
               ConnectionGUI.this.dispose
             }
             catch { case e: Exception => e.printStackTrace; false }
@@ -37,7 +35,7 @@ object StandaloneHubNetClient{
     }
   }
 
-  class ClientGUI(connection:TestClient) {
+  class ClientGUI(connection:BasicClient) {
     def run() = { new ClientFrame().go() }
     class ClientFrame extends JFrame {
       getContentPane.add(new ConnectionPanel)
@@ -54,10 +52,7 @@ object StandaloneHubNetClient{
             def actionPerformed(actionEvent: ActionEvent) {sendMessage(message)}
           })
         }
-        add(new MessageButton("left"))
-        add(new MessageButton("up"))
-        add(new MessageButton("down"))
-        add(new MessageButton("right"))
+        for(b<-connection.interfaceSpec) add(new MessageButton(b.toString))
       }
     }
     def sendMessage(message: String) {

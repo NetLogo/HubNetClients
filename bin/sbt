@@ -19,7 +19,5 @@ $JAVA \
   -Xss1M -Xmx1536M -XX:MaxPermSize=256M \
   -Dfile.encoding=UTF-8 \
   $JAVA_OPTS \
-  -Djava.awt.headless=true \
-  -Dapple.awt.graphics.UseQuartz=false \
   -classpath $JAVA_HOME/lib/tools.jar:`dirname $0`/sbt-launch.jar \
   xsbt.boot.Boot "$@"

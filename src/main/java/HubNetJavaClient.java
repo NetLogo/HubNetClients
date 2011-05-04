@@ -1,6 +1,5 @@
 import org.nlogo.api.LogoList;
 import org.nlogo.hubnet.protocol.Message;
-import org.nlogo.hubnet.protocol.TestClient;
 
 import java.util.Random;
 
@@ -70,7 +69,7 @@ public class HubNetJavaClient {
 
     // The line below creates an actual connection to a HubNet server with:
     // username=josh, clientType=ANDROID on ip=127.0.0.1, port=9173
-    final TestClient client = TestClient.create("josh", "ANDROID", "127.0.0.1", 9173);
+    final BasicClient client = BasicClient.create("josh", "ANDROID", "127.0.0.1", 9173);
 
     // After the client connects, these two methods can be called, and
     // are guaranteed to hold good data.
