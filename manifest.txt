@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Extension-Name: hubnet-client
+Class-Manager: HubNetClientExtension
+NetLogo-Extension-API-Version: 5.0

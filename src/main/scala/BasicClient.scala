@@ -2,6 +2,7 @@ import java.net.Socket
 import java.io.{IOException, ObjectOutputStream}
 import java.util.concurrent.{Executors, ExecutorService, TimeUnit, LinkedBlockingQueue}
 import org.nlogo.api.{LogoList, Version}
+import org.nlogo.hubnet.connection.ClientRoles
 import org.nlogo.hubnet.protocol._
 import org.nlogo.util.JCL._
 import org.nlogo.util.ClassLoaderObjectInputStream
@@ -63,15 +64,15 @@ case class BasicClient(userId: String, clientType: String="COMPUTER", ip:String=
   import org.nlogo.hubnet.protocol.{ViewUpdate => ViewUp}
 
   private val socket = new Socket(ip, port) {setSoTimeout(0)}
-  private val in = ClassLoaderObjectInputStream(currentThread.getContextClassLoader, socket.getInputStream)
+  private val in = ClassLoaderObjectInputStream(Thread.currentThread.getContextClassLoader, socket.getInputStream)
   private val out = new ObjectOutputStream(socket.getOutputStream)
 
   // public api
   val (activityName, interfaceSpec) = handshake()
   lazy val messagesReceived = new LinkedBlockingQueue[Message]
 
-  def sendActivityCommand(tag:String, content: Any){
-    send(new ActivityCommand(tag, content.asInstanceOf[AnyRef]))
+  def sendActivityCommand(widgetType:String, tag:String, content: Any){
+    send(new ActivityCommand(widgetType, tag, content.asInstanceOf[AnyRef]))
   }
 
   def close(reason:String){ send(ExitMessage(reason)) }
@@ -92,10 +93,9 @@ case class BasicClient(userId: String, clientType: String="COMPUTER", ip:String=
     }
     try{
       val version = sendAndReceive(Version.version)
-      val response = sendAndReceive(new HandshakeFromClient(userId, clientType))
+      val response = sendAndReceive(new EnterMessage(userId, clientType, ClientRoles.Participant))
       val result = response match {
         case h: HandshakeFromServer =>
-          send(EnterMessage)
           executor.submit(new Receiver())
           (h.activityName, h.interfaceSpecList)
         case r => throw new IllegalStateException(userId + " handshake failed. response:" + r)
@@ -123,7 +123,9 @@ case class BasicClient(userId: String, clientType: String="COMPUTER", ip:String=
   private class Receiver extends Runnable {
     override def run() {
       try {
-        messagesReceived.put(in.readObject.asInstanceOf[Message])
+        val m = in.readObject.asInstanceOf[Message]
+        //println(m)
+        messagesReceived.put(m)
         executor.submit(this)
       } catch {
         // keep track of death so that users of BasicClient know.

@@ -86,7 +86,7 @@ object BasicHubNetClientWithGUI{
       }
     }
     def sendMessage(message: String) {
-      client.sendActivityCommand(message, false.asInstanceOf[AnyRef])
+      client.sendActivityCommand("Button", message, false.asInstanceOf[AnyRef])
     }
   }
 }

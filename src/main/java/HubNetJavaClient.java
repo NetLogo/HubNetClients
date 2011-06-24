@@ -109,7 +109,7 @@ public class HubNetJavaClient {
     Random r = new Random();
     while (true) {
       String buttonToPress = interfaceSpec.get(r.nextInt(interfaceSpec.size())).toString();
-      client.sendActivityCommand(buttonToPress, false);
+      client.sendActivityCommand("Button", buttonToPress, false);
       try {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
