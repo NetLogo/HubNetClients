@@ -79,7 +79,7 @@ public class HubNetJavaClient {
     // ["up" "down" "left" "right"] for ANDROID here.
     // Once again, for COMPUTER clients, the list contains something far different
     // and I'll provide the docs for it if needed.
-    LogoList interfaceSpec = client.interfaceSpec();
+    scala.collection.Seq<Object> interfaceSpec = client.interfaceSpec();
 
     // I print this out just so that you can verify things are working properly.
     // The second call is especially useful if you try to use the "COMPUTER" client type.
@@ -108,7 +108,7 @@ public class HubNetJavaClient {
     // (this is what happens when the a regular client clients a button).
     Random r = new Random();
     while (true) {
-      String buttonToPress = interfaceSpec.get(r.nextInt(interfaceSpec.size())).toString();
+      String buttonToPress = interfaceSpec.apply(r.nextInt(interfaceSpec.size())).toString();
       client.sendActivityCommand(buttonToPress, false);
       try {
         Thread.sleep(1000);
