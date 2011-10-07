@@ -36,6 +36,6 @@ object HubNetClientMayhem {
   // right now, this just chooses a random button for the client to 'click'
   // but really, you could do anything you wanted in here. 
   def doStuff(c:BasicClient){
-    c.sendActivityCommand(c.interfaceSpec.get(random.nextInt(4)).toString, false)
+    c.sendActivityCommand(c.interfaceSpec(random.nextInt(4)).toString, false)
   }
 }

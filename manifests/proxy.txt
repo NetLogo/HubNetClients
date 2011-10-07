@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Extension-Name: hubnet-proxy
+Class-Manager: HubNetProxyExtension
+NetLogo-Extension-API-Version: 5.0

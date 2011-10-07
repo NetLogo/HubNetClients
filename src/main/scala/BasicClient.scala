@@ -3,8 +3,8 @@ import java.io.{IOException, ObjectOutputStream}
 import java.util.concurrent.{Executors, ExecutorService, TimeUnit, LinkedBlockingQueue}
 import org.nlogo.api.{LogoList, Version}
 import org.nlogo.hubnet.protocol._
-import org.nlogo.util.JCL._
 import org.nlogo.util.ClassLoaderObjectInputStream
+import collection.JavaConverters._
 
 /**
  * BasicClients handle all the busy work of managing Socket connections to HubNet servers.
@@ -63,7 +63,7 @@ case class BasicClient(userId: String, clientType: String="COMPUTER", ip:String=
   import org.nlogo.hubnet.protocol.{ViewUpdate => ViewUp}
 
   private val socket = new Socket(ip, port) {setSoTimeout(0)}
-  private val in = ClassLoaderObjectInputStream(currentThread.getContextClassLoader, socket.getInputStream)
+  private val in = ClassLoaderObjectInputStream(Thread.currentThread.getContextClassLoader, socket.getInputStream)
   private val out = new ObjectOutputStream(socket.getOutputStream)
 
   // public api
@@ -76,16 +76,16 @@ case class BasicClient(userId: String, clientType: String="COMPUTER", ip:String=
 
   def close(reason:String){ send(ExitMessage(reason)) }
   def getWidgetControlMessages: Iterable[WidgetControl] =
-    messagesReceived.collect{ case wc: WidgetControl => wc }
+    messagesReceived.asScala.collect{ case wc: WidgetControl => wc }
   def getViewUpdateMessages: Iterable[ViewUp] =
-    messagesReceived.collect{ case vu: ViewUp => vu }
+    messagesReceived.asScala.collect{ case vu: ViewUp => vu }
 
   def nextMessage(timeoutMillis:Long=200): Option[Message] =
     Option(messagesReceived.poll(timeoutMillis, TimeUnit.MILLISECONDS))
 
   // Attempts the handshake and explodes if it fails.
   // This method is called from the constructor.
-  private def handshake(): (String, LogoList) = {
+  private def handshake(): (String, Seq[AnyRef]) = {
     def sendAndReceive(a: AnyRef): AnyRef = {
       rawSend(a)
       in.readObject()
@@ -97,7 +97,7 @@ case class BasicClient(userId: String, clientType: String="COMPUTER", ip:String=
         case h: HandshakeFromServer =>
           send(EnterMessage)
           executor.submit(new Receiver())
-          (h.activityName, h.interfaceSpecList)
+          (h.activityName, h.interfaceSpecList.toSeq)
         case r => throw new IllegalStateException(userId + " handshake failed. response:" + r)
       }
       result
