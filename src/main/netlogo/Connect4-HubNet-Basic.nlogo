@@ -1,247 +1,247 @@
 globals[
-moves                         ; number of moves so far
-winner?                       ; false until someone wins
-player-1                      ; either Red or Black
-player-2                      ; the opposite of player 1
-current-player                ; used to control game-play
-single-headings               ; list of headings for evaluating moves
-double-headings               ; list of headings for "inside" evaluation of moves
-undo-turtle
-winner-list
+  moves                         ; number of moves so far
+  winner?                       ; false until someone wins
+  player-1                      ; either Red or Black
+  player-2                      ; the opposite of player 1
+  current-player                ; used to control game-play
+  single-headings               ; list of headings for evaluating moves
+  double-headings               ; list of headings for "inside" evaluation of moves
+  undo-turtle
+  winner-list
 ]
 
 patches-own [anyone?           ; is there a checker here?
-             type-here         ; color of checker here
-             column
-             row
-            ]
+  type-here         ; color of checker here
+  column
+  row
+]
 
 turtles-own [my-row
-             my-column
-            ]
-            
+  my-column
+]
+
 to startup
   setup
   hubnet-reset
 end
 
 to setup
-;; (for this model to work with NetLogo's new plotting features,
+  ;; (for this model to work with NetLogo's new plotting features,
   ;; __clear-all-and-reset-ticks should be replaced with clear-all at
   ;; the beginning of your setup procedure and reset-ticks at the end
   ;; of the procedure.)
   __clear-all-and-reset-ticks
-clear-output
-print " Would you like to play?"
-print " Pick a checker to begin"
-set winner? false
-set winner-list []
-setup-rows-and-columns
-set double-headings [45 90 135 180]
-ask patches [
-ifelse pycor = max-pycor 
+  clear-output
+  print " Would you like to play?"
+  print " Pick a checker to begin"
+  set winner? false
+  set winner-list []
+  setup-rows-and-columns
+  set double-headings [45 90 135 180]
+  ask patches [
+    ifelse pycor = max-pycor 
     [set pcolor grey  
-     set type-here grey 
-     set anyone? false]  ; fills the un-needed row
+      set type-here grey 
+      set anyone? false]  ; fills the un-needed row
     [ set pcolor yellow    ; create the game-board
       set anyone? false
       sprout 1 [ set shape "circle"       ; make the game-board 
-                 set color white 
-                 ask patch-here [set type-here white]]         ; look authentic 
+        set color white 
+        ask patch-here [set type-here white]]         ; look authentic 
     ] ]  
-set undo-turtle nobody  
-    ifelse select-color-player-1 = "red"  [set player-1 "Red"  
-                     set player-2 "Black"] 
-                    [set player-1 "Black" 
-                     set player-2 "Red"]
-set current-player player-1
+  set undo-turtle nobody  
+  ifelse select-color-player-1 = "red"  [set player-1 "Red"  
+    set player-2 "Black"] 
+  [set player-1 "Black" 
+    set player-2 "Red"]
+  set current-player player-1
 end
 
 to setup-rows-and-columns
-ask patches [
-if pxcor = -3 [set column 1]
-if pxcor = -2 [set column 2]
-if pxcor = -1 [set column 3]
-if pxcor =  0 [set column 4]
-if pxcor =  1 [set column 5]
-if pxcor =  2 [set column 6]
-if pxcor =  3 [set column 7]
-
-if pycor = 2 [set row 1]
-if pycor = 1 [set row 2]
-if pycor = 0 [set row 3]
-if pycor = -1 [set row 4]
-if pycor = -2 [set row 5]
-if pycor = -3 [set row 6]
-]
+  ask patches [
+    if pxcor = -3 [set column 1]
+    if pxcor = -2 [set column 2]
+    if pxcor = -1 [set column 3]
+    if pxcor =  0 [set column 4]
+    if pxcor =  1 [set column 5]
+    if pxcor =  2 [set column 6]
+    if pxcor =  3 [set column 7]
+    
+    if pycor = 2 [set row 1]
+    if pycor = 1 [set row 2]
+    if pycor = 0 [set row 3]
+    if pycor = -1 [set row 4]
+    if pycor = -2 [set row 5]
+    if pycor = -3 [set row 6]
+  ]
 end
 
 to set-single-headings            ; necessary to evaluate each move from the end
-if my-column = 1 and my-row < 4 [ set single-headings [90 135 180]]
-if my-column = 1 and my-row >= 4 [set single-headings [ 0 45 90]]
-if my-column = 2 or my-column = 3 and my-row < 4 [ set single-headings [90 135 180]]
-if my-column = 2 or my-column = 3 and my-row >= 4 [set single-headings [ 0 45 90]]
-if my-column = 4 and my-row < 4 [ set single-headings [90 135 180 225 270]]
-if my-column = 4 and my-row >= 4 [ set single-headings [0 45 90 270 315]]
-if my-column = 5  or my-column = 6 and my-row < 4 [ set single-headings [180 225 270]]
-if my-column = 5 or my-column = 6 and my-row >= 4[ set single-headings [0 270 315]]
-if my-column = 7 and my-row < 4 [ set single-headings [180 225 270]]
-if my-column = 7 and my-row >= 4 [set single-headings [ 0 315 270]]
+  if my-column = 1 and my-row < 4 [ set single-headings [90 135 180]]
+  if my-column = 1 and my-row >= 4 [set single-headings [ 0 45 90]]
+  if my-column = 2 or my-column = 3 and my-row < 4 [ set single-headings [90 135 180]]
+  if my-column = 2 or my-column = 3 and my-row >= 4 [set single-headings [ 0 45 90]]
+  if my-column = 4 and my-row < 4 [ set single-headings [90 135 180 225 270]]
+  if my-column = 4 and my-row >= 4 [ set single-headings [0 45 90 270 315]]
+  if my-column = 5  or my-column = 6 and my-row < 4 [ set single-headings [180 225 270]]
+  if my-column = 5 or my-column = 6 and my-row >= 4[ set single-headings [0 270 315]]
+  if my-column = 7 and my-row < 4 [ set single-headings [180 225 270]]
+  if my-column = 7 and my-row >= 4 [set single-headings [ 0 315 270]]
 end
 
 to add-piece [x]     ; each button has x as its column number
-let open 0
+  let open 0
   let type-color 0
   let move-complete 0
   let listing 0
   let player-1-count 0
   let player-2-count 0
   
-ifelse winner? = true [ setup ] [    ;; don't continue if the game is over
-ask turtles with [shape = "last-piece"] [set shape "circle"]
-set moves moves + 1
-set move-complete false 
-set listing [-3 -2 -1 0 1 2]       ;; used to see if there are any legal sites
-if [anyone?] of patch x 2 != true [ 
-crt 1 [ set undo-turtle self
-ifelse not show-last-played? [set shape "circle"]
-[set shape "last-piece"] 
-ifelse current-player = "Black" [set color black set type-color black ] 
-                                [set color red set type-color red]
-ifelse current-player = player-1 [set player-1-count player-1-count + 1 ]
-                                 [set player-2-count player-2-count + 1 ]
-
-without-interruption [  
-foreach listing [
-ask patch x ? [if anyone? = false and move-complete = false
-                         [set open pycor       
-                          set anyone? true     ;; this patch is now used
-                          set move-complete true  ;; this turn is now over
-                          set type-here type-color] ]  ;;assigning the patch the checker color
-                 ]   ] 
-    setxy x open                 ;; add the new checker
-    set my-column [column] of patch-here   ;; assign a column and row
-    set my-row [row] of patch-here
+  ifelse winner? = true [ setup ] [    ;; don't continue if the game is over
+    ask turtles with [shape = "last-piece"] [set shape "circle"]
+    set moves moves + 1
+    set move-complete false 
+    set listing [-3 -2 -1 0 1 2]       ;; used to see if there are any legal sites
+    if [anyone?] of patch x 2 != true [ 
+      crt 1 [ set undo-turtle self
+        ifelse not show-last-played? [set shape "circle"]
+        [set shape "last-piece"] 
+        ifelse current-player = "Black" [set color black set type-color black ] 
+          [set color red set type-color red]
+        ifelse current-player = player-1 [set player-1-count player-1-count + 1 ]
+          [set player-2-count player-2-count + 1 ]
+        
+        without-interruption [  
+          foreach listing [
+            ask patch x ? [if anyone? = false and move-complete = false
+              [set open pycor       
+                set anyone? true     ;; this patch is now used
+                set move-complete true  ;; this turn is now over
+                set type-here type-color] ]  ;;assigning the patch the checker color
+          ]   ] 
+        setxy x open                 ;; add the new checker
+        set my-column [column] of patch-here   ;; assign a column and row
+        set my-row [row] of patch-here
+        
+        set-single-headings   
+        if moves >= 7 [check-for-winner ]
+        if moves = 42 and winner? = false [
+          print " No More Moves Left - Its a Draw!" 
+          print " Hit Play Again? to re-start"] ]]
     
-    set-single-headings   
-    if moves >= 7 [check-for-winner ]
-    if moves = 42 and winner? = false [
-                   print " No More Moves Left - Its a Draw!" 
-                   print " Hit Play Again? to re-start"] ]]
-
-;if winner? = true [wait .4 if user-yes-or-no "Game Over! Would You like to Play Again?"
- ;                [ setup ]]
-
-ifelse player-1-count > player-2-count [set current-player player-2]
-                                       [set current-player player-1] 
-]
-
+    ;if winner? = true [wait .4 if user-yes-or-no "Game Over! Would You like to Play Again?"
+    ;                [ setup ]]
+    
+    ifelse player-1-count > player-2-count [set current-player player-2]
+      [set current-player player-1] 
+  ]
+  
 end
 
 to update-color   ;; used to change the starting player's color
-ifelse select-color-player-1 = "red"  [set player-1 "Red"  
-                     set player-2 "Black"] 
-                    [set player-1 "Black" 
-                     set player-2 "Red"]
-set current-player player-1
+  ifelse select-color-player-1 = "red"  [set player-1 "Red"  
+    set player-2 "Black"] 
+  [set player-1 "Black" 
+    set player-2 "Red"]
+  set current-player player-1
 end
 
 to check-for-winner
-let mycolor 0
+  let mycolor 0
   let win? 0
   let points 0
   let origin 0
   
-set points 0
-set mycolor color          ; color of turtle for patches to evaluate
-set win? false
-
-;;check four to the left, right, or diagonal for a win
-without-interruption [
-foreach single-headings [ if not win? [ set winner-list []  
-ask patch-here [ set winner-list lput self winner-list
- ask patch-at-heading-and-distance ? 1 [   ; check one out checker away
-  if type-here = mycolor [ set winner-list lput self winner-list ;; do the color's match?
-                           ask patch-at-heading-and-distance ? 1 [ if type-here = mycolor [ set winner-list lput self winner-list ;;if yes above, check two out
-               ask patch-at-heading-and-distance ? 1 [ if type-here = mycolor  [ set win? true set winner-list lput self winner-list ] ; if three check out you win!
-                                               
-] ]]]]  ]]]]
-
-;; if no winner yet, look two the right and two to the left on all headings for columns 3 - 5 
-if win? != true and xcor > -2 and xcor < 2 [   ;; if you didn't win with the single evaluations - looking at the end of each string
-without-interruption [
-foreach double-headings [ if not win? [ set winner-list []    ;; look at the two-way or double evaluations
-set points 0
-ask patch-here [ set origin self  set winner-list lput self winner-list
-
-;; ask first one out 
-  ask patch-at-heading-and-distance ? 1 [ 
-     if type-here = mycolor [ set points points + 1  set winner-list lput self winner-list   ;; only continue if there is another one on this heading
-       ask patch-at-heading-and-distance ? 1 [   ;;ask patch two out
-        if type-here = mycolor [set points points + 1 set winner-list lput self winner-list ] 
-          ask origin [ask patch-at-heading-and-distance (? + 180) 1 [   ;; now go back and go in the opposite direction
-           if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
-             ifelse points = 3 [set win? true] [   
-             ask patch-at-heading-and-distance (? + 180) 1 [ 
-             if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
-                                     if points = 3 [set win? true ]
- ]]]]]]]]]]    ]    ]  ]    ]
-
-;; look two to the right and one to the left for column 2 (xcor = -2)
-if win? != true and xcor = -2 [   ;; if you didn't win with the single evaluations - looking at the end of each string
-without-interruption [ 
-foreach double-headings [  if not win? [ set winner-list []    ;; look at the two-way or double evaluations
-
-set points 0
-ask patch-here [ set origin self set winner-list lput self winner-list 
-
-;; ask first one out 
-  ask patch-at-heading-and-distance ? 1 [ 
-     if type-here = mycolor [ set points points + 1  set winner-list lput self winner-list  ;; only continue if there is another one on this heading
-       ask patch-at-heading-and-distance ? 1 [   ;;ask patch two out
-        if type-here = mycolor [set points points + 1 set winner-list lput self winner-list] 
-          ask origin [ask patch-at-heading-and-distance (? + 180) 1 [   ;; now go back and go in the opposite direction
-           if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
-             ifelse points = 3 [set win? true] [ ]
- ]]]]]]]]]] ]         
-
-;; finally, look one to the right, and two to the left for column 6 (pxcor 2)
-if win? != true and xcor = 2 [   
-without-interruption [
-foreach double-headings [ if not win? [ set winner-list []     ;; look at the two-way or double evaluations
-
-set points 0
-ask patch-here [ set origin self  set winner-list lput self winner-list
-
-;; ask first one out 
-  ask patch-at-heading-and-distance ? 1 [ 
-     if type-here = mycolor [ set points points + 1 set winner-list lput self winner-list   ;; only continue if there is another one on this heading
-         ask origin [ask patch-at-heading-and-distance (? + 180) 1 [   ;; now go back and go in the opposite direction
-           if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
-             ifelse points = 3 [set win? true] [   
-             ask patch-at-heading-and-distance (? + 180) 1 [ 
-             if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
-                                     if points = 3 [set win? true ]
- ]]]]]]]]]]    ]    ]    ]
-
-;; if the game is won, end it!
-if win? = true [set winner? true   ; ending the game
-                print (word " " current-player " won the game in " round (moves / 2) " moves!")
-               
-if show-winner? = true [
-without-interruption [
-foreach winner-list [ ask ? [set pcolor green]
-ask turtles with [shape = "last-piece"] [set shape "circle"]                
-                ]
-]]                ]
+  set points 0
+  set mycolor color          ; color of turtle for patches to evaluate
+  set win? false
+  
+  ;;check four to the left, right, or diagonal for a win
+  without-interruption [
+    foreach single-headings [ if not win? [ set winner-list []  
+      ask patch-here [ set winner-list lput self winner-list
+        ask patch-at-heading-and-distance ? 1 [   ; check one out checker away
+          if type-here = mycolor [ set winner-list lput self winner-list ;; do the color's match?
+            ask patch-at-heading-and-distance ? 1 [ if type-here = mycolor [ set winner-list lput self winner-list ;;if yes above, check two out
+              ask patch-at-heading-and-distance ? 1 [ if type-here = mycolor  [ set win? true set winner-list lput self winner-list ] ; if three check out you win!
+                
+              ] ]]]]  ]]]]
+  
+  ;; if no winner yet, look two the right and two to the left on all headings for columns 3 - 5 
+  if win? != true and xcor > -2 and xcor < 2 [   ;; if you didn't win with the single evaluations - looking at the end of each string
+    without-interruption [
+      foreach double-headings [ if not win? [ set winner-list []    ;; look at the two-way or double evaluations
+        set points 0
+        ask patch-here [ set origin self  set winner-list lput self winner-list
+          
+          ;; ask first one out 
+          ask patch-at-heading-and-distance ? 1 [ 
+            if type-here = mycolor [ set points points + 1  set winner-list lput self winner-list   ;; only continue if there is another one on this heading
+              ask patch-at-heading-and-distance ? 1 [   ;;ask patch two out
+                if type-here = mycolor [set points points + 1 set winner-list lput self winner-list ] 
+                ask origin [ask patch-at-heading-and-distance (? + 180) 1 [   ;; now go back and go in the opposite direction
+                  if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
+                    ifelse points = 3 [set win? true] [   
+                      ask patch-at-heading-and-distance (? + 180) 1 [ 
+                        if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
+                          if points = 3 [set win? true ]
+                        ]]]]]]]]]]    ]    ]  ]    ]
+  
+  ;; look two to the right and one to the left for column 2 (xcor = -2)
+  if win? != true and xcor = -2 [   ;; if you didn't win with the single evaluations - looking at the end of each string
+    without-interruption [ 
+      foreach double-headings [  if not win? [ set winner-list []    ;; look at the two-way or double evaluations
+        
+        set points 0
+        ask patch-here [ set origin self set winner-list lput self winner-list 
+          
+          ;; ask first one out 
+          ask patch-at-heading-and-distance ? 1 [ 
+            if type-here = mycolor [ set points points + 1  set winner-list lput self winner-list  ;; only continue if there is another one on this heading
+              ask patch-at-heading-and-distance ? 1 [   ;;ask patch two out
+                if type-here = mycolor [set points points + 1 set winner-list lput self winner-list] 
+                ask origin [ask patch-at-heading-and-distance (? + 180) 1 [   ;; now go back and go in the opposite direction
+                  if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
+                    ifelse points = 3 [set win? true] [ ]
+                  ]]]]]]]]]] ]         
+  
+  ;; finally, look one to the right, and two to the left for column 6 (pxcor 2)
+  if win? != true and xcor = 2 [   
+    without-interruption [
+      foreach double-headings [ if not win? [ set winner-list []     ;; look at the two-way or double evaluations
+        
+        set points 0
+        ask patch-here [ set origin self  set winner-list lput self winner-list
+          
+          ;; ask first one out 
+          ask patch-at-heading-and-distance ? 1 [ 
+            if type-here = mycolor [ set points points + 1 set winner-list lput self winner-list   ;; only continue if there is another one on this heading
+              ask origin [ask patch-at-heading-and-distance (? + 180) 1 [   ;; now go back and go in the opposite direction
+                if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
+                  ifelse points = 3 [set win? true] [   
+                    ask patch-at-heading-and-distance (? + 180) 1 [ 
+                      if type-here = mycolor [set points points + 1 set winner-list lput self winner-list
+                        if points = 3 [set win? true ]
+                      ]]]]]]]]]]    ]    ]    ]
+  
+  ;; if the game is won, end it!
+  if win? = true [set winner? true   ; ending the game
+    print (word " " current-player " won the game in " round (moves / 2) " moves!")
+    
+    if show-winner? = true [
+      without-interruption [
+        foreach winner-list [ ask ? [set pcolor green]
+          ask turtles with [shape = "last-piece"] [set shape "circle"]                
+        ]
+      ]]                ]
 end
 
 
 to undo-move    ;; to enable you to undo a move.  
-if not winner?  and undo-turtle != nobody [
-ask undo-turtle [ ask patch-here [set anyone? false ] die]
-ifelse current-player = player-2 [set current-player player-1] [set current-player player-2]
-]
+  if not winner?  and undo-turtle != nobody [
+    ask undo-turtle [ ask patch-here [set anyone? false ] die]
+    ifelse current-player = player-2 [set current-player player-1] [set current-player player-2]
+  ]
 end
 
 to listen-clients
@@ -877,7 +877,7 @@ Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 
 Polygon -6459832 true true 67 122 96 126 63 144
 
 @#$#@#$#@
-NetLogo 5.0beta4
+NetLogo 5.0RC2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

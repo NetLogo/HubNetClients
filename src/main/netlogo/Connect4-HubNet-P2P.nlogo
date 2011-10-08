@@ -235,7 +235,8 @@ to check-for-winner
         foreach winner-list [ ask ? [set pcolor green]
           ask turtles with [shape = "last-piece"] [set shape "circle"]                
         ]
-      ]]                ]
+      ]]                
+    ]
 end
 
 
@@ -918,7 +919,7 @@ Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 
 Polygon -6459832 true true 67 122 96 126 63 144
 
 @#$#@#$#@
-NetLogo 5.0beta4
+NetLogo 5.0RC2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
